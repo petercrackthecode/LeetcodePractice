@@ -52,10 +52,15 @@ int maxProfit(std::vector<int> prices) {
         while (i < prices.size() - 1 && prices[i] >= prices[i + 1])
             ++i;
         valley= prices[i];
+        // valley is the local Minimum (the points where the stocks change from decrease to increase)
+        // if the initial value is greater than its adjacent, we ignore it, we don't care.
 
         while (i < prices.size() - 1 && prices[i] <= prices[i + 1])
             ++i;
         peak= prices[i];
+        // peak is the local Maxima (the points where the stocks change from increase to decrease)
+        // as we already assign peak= prices[0], we don't worry if the initial value is smaller than its successing value.
+
 
         maxProfit+= peak - valley;
     }
@@ -76,3 +81,4 @@ int maxProfit(std::vector<int> prices) {
 }
 // Time complexity: O(n), single pass.
 // Space complexity: O(1). Constant space needed.
+
