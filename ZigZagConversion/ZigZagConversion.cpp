@@ -1,6 +1,6 @@
 // Problem link: https://leetcode.com/problems/zigzag-conversion/
 string convert(string s, int numRows) {
-
+	
 }
 
 int main() {
