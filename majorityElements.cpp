@@ -2,9 +2,9 @@
 int majorityElement(vector<int> &nums) {
 	int majorityNum{nums[0]},
 		size= nums.size(),
-		numVote{0};
+		numVote{1};
 
-	for (int index{0}; index < size; ++index) {
+	for (int index{1}; index < size; ++index) {
 		if (nums[index] == majorityNum) {
 			++numVote;
 		}
