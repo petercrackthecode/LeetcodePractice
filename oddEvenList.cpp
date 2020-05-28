@@ -9,13 +9,23 @@
  *     ListNode(int x, ListNode *next) : val(x), next(next) {}
  * };
  */
- ListNode* oddEvenList(ListNode* head) {
-    if (!head || !head->next || !head->next->next) {
-        return head;
-    }
-        
-    ListNode * lastOddOrderedNode= head,
-               lastEvenOrderedNode= head->next;
 
-    int numberTracker{1};
+ListNode *oddEvenList(ListNode *head) {
+	if (!head || !head->next || !head->next->next) {
+		return head;
+	}
+
+	ListNode * lastOddOrderedNode= head,
+			 * startOfEvenOrderedList = head->next,
+			 * endOfEvenOrderedList = head->next;
+
+	while (endOfEvenOrderedList && endOfEvenOrderedList->next) {
+		lastOddOrderedNode->next= endOfEvenOrderedList->next;
+		lastOddOrderedNode= lastOddOrderedNode->next; // lastOddOrderedNode == endOfEvenOrderedList->next
+		endOfEvenOrderedList->next= endOfEvenOrderedList->next->next;
+		endOfEvenOrderedList= endOfEvenOrderedList->next;
+		lastOddOrderedNode->next= startOfEvenOrderedList;
+	}
+    
+    return head;
 }
