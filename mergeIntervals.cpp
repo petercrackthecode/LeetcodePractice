@@ -6,7 +6,7 @@ vector<vector<int>> merge(vector<vector<int>>& in){
         for (int i=0;i<n;i++)
             intervals.push_back(make_pair(in[i][0],in[i][1]));
         
-        sort(intervals.begin(),intervals.end());  
+        sort(intervals.begin(), intervals.end());  
         
         vector<vector<int>> ans;
         int start = intervals[0].first, end = intervals[0].second;
