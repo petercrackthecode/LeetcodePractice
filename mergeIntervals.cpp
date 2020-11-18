@@ -1,30 +1,25 @@
 // link: https://leetcode.com/problems/merge-intervals/
-bool myComparator (std::vector<int> first, std::vector<int> second) { 
-    return (first[0] < second[0]); 
-}
-
-std::vector<std::vector<int>> merge(std::vector<std::vector<int>>& meetings)
-{
-    // merge meeting ranges 
-    std::vector<std::vector<int>> mergedMeetings;
-                    
-    std::sort(meetings.begin(), meetings.end(), myComparator);
-    
-    int index{0};
-    
-    while (index < meetings.size()) {
-        std::vector<int> aMeeting= meetings[index];
-        if (index != meetings.size() - 1) {
-            while (index < meetings.size() - 1 && aMeeting[1] >= meetings[index + 1][0]) {
-                if (aMeeting[1] < meetings[index + 1][1]) {
-                    aMeeting[1]= meetings[index + 1][1];
-                }
-                ++index;
+vector<vector<int>> merge(vector<vector<int>>& in){
+        vector<pair<int,int>> intervals;
+        int n = in.size();
+        
+        for (int i=0;i<n;i++)
+            intervals.push_back(make_pair(in[i][0],in[i][1]));
+        
+        sort(intervals.begin(),intervals.end());  
+        
+        vector<vector<int>> ans;
+        int start = intervals[0].first, end = intervals[0].second;
+        
+        for (int i=1;i<n;i++){
+            if (end >= intervals[i].first){
+                end = max(end, intervals[i].second);
+            } else {
+                ans.push_back({start,end});
+                start = intervals[i].first; end = intervals[i].second;
             }
         }
-        mergedMeetings.push_back(aMeeting);
-        ++index;
+        
+        ans.push_back({start,end});
+        return ans;
     }
-
-    return mergedMeetings;
-}
