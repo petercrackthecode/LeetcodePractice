@@ -6,7 +6,7 @@ class Solution {
 	public String longestPalindrome(String s) {
 		if (s.length() < 2)
 			return s;
-		char[] c = s.toCharArray();
+		char[] c = s.toCharArray(); // toCharArray makes it easier to process string
 		longestPalindomeAt(c, 0);
 		return s.substring(start, end + 1);
 	}
