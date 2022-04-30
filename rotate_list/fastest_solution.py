@@ -19,11 +19,11 @@ class Solution:
 
 		lastElement.next = head
 
-		reminder = k % linkedList_len
+		remainder = k % linkedList_len
 
 		tempNode = head
 
-		for _ in range(linkedList_len - 1 - reminder):
+		for _ in range(linkedList_len - 1 - remainder):
 			tempNode = tempNode.next
 
 		answer = tempNode.next
