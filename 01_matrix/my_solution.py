@@ -5,34 +5,37 @@ from typing import List
 class Solution:
     def __init__(self):
         self.distance_matrix = list()
+        # is_visited: check if the element is already visited, so not to recursively call it again.
+        # key: a pair of tuple
+        # value: bool
+        self.is_visited = dict()
 
     def getCellDistanceToNearestZero(self, mat: List[List[int]], r: int, c: int) -> int:
         # Only update the self.distance_matrix at the [r][c] position if it hasn't been updated yet.
         print('row = ', r, ', column = ', c)
+        print("mat = ", mat)
         if self.distance_matrix[r][c] == -1:
             columns, rows = len(mat[0]), len(mat)
+            LARGEST_POSSIBLE_DISTANCE = rows * columns - 1
             if mat[r][c] == 0:
                 self.distance_matrix[r][c] = 0
             else:
+                print("called")
                 top_matrix_distance = self.getCellDistanceToNearestZero(
-                    mat, r-1, c) if r-1 >= 0 else float('inf')
+                    mat, r-1, c) if (r-1 >= 0 and not (r, c) in self.is_visited) else LARGEST_POSSIBLE_DISTANCE
                 bottom_matrix_distance = self.getCellDistanceToNearestZero(
-                    mat, r+1, c) if r+1 < rows else float('inf')
+                    mat, r+1, c) if (r+1 < rows and not (r, c) in self.is_visited) else LARGEST_POSSIBLE_DISTANCE
                 left_matrix_distance = self.getCellDistanceToNearestZero(
-                    mat,  r, c-1) if c-1 >= 0 else float('inf')
+                    mat,  r, c-1) if (c-1 >= 0 and not (r, c) in self.is_visited) else LARGEST_POSSIBLE_DISTANCE
                 right_matrix_distance = self.getCellDistanceToNearestZero(
-                    mat, r, c+1) if c+1 < columns else float('inf')
+                    mat, r, c+1) if (c+1 < columns and not (r, c) in self.is_visited) else LARGEST_POSSIBLE_DISTANCE
 
-                print(
-                    f"top_matrix_distance = {top_matrix_distance}, \
-                      bottom_matrix_distance = {bottom_matrix_distance}, \
-                        left_matrix_distance = {left_matrix_distance}, \
-                          right_matrix_distance = {right_matrix_distance}")
-
-                self.distance_matrix[r][c] = 1 + min(top_matrix_distance, bottom_matrix_distance,
-                                                     left_matrix_distance, right_matrix_distance)
+                self.distance_matrix[r][c] = 1 + min(bottom_matrix_distance,
+                                                     right_matrix_distance)
         else:
             print("self.distance_matrix is already updated")
+
+        self.is_visited[(r, c)] = True
         return self.distance_matrix[r][c]
 
     def updateMatrix(self, mat: List[List[int]]) -> List[List[int]]:
