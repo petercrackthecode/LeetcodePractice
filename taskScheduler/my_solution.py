@@ -1,54 +1,76 @@
 # https://leetcode.com/problems/task-scheduler/
-from collections import deque
-from typing import List
 import functools
+from typing import List
 
 
 class Solution:
     def leastInterval(self, tasks: List[str], n: int) -> int:
         """
-        1. Have a map which saves the frequencies of tasks called task_frequencies.
-        2. Have a deque which saves the task keys (the letters), sorted ascendingly by their frequencies, called 
-        available_tasks.
-        3. Iterate through the tasks list to populate tasks_frequencies and available_tasks.
-        4. Have an array called tasks_queue which illustrates different tasks we would do at the ith time.
-        5. Have a variable called tasks_count = len(tasks)
-        6. Loop:
-           while tasks_count > 0:
+        tasks = ["A", "A", "B", "A", "C", "C"]
+        unique_elements = ["A", "C", "B"]
+        tasks_freq = {
+            "A": 3,
+            "B": 1,
+            "C": 2
+        }
+        tasks_queue = []
+        - Have a dictionary called tasks_freq to save the count of tasks in our tasks list.
+        - Have a variable called unique_elements which is an array that saves all the tasks’ letters and sorts them based on the tasks_freq of those letters.
+        - Have a variable called section_length = n+1.
+        - Have a while loop: 
+            i = 0
+            while tasks_count < len(tasks):
+                if section_length == 0:
+                    i = 0
+                    section_length = n+1
+                task_label = unique_elements[i]
+                while i < len(unique_elements) and tasks_freq[task_label] <= 0:
+                    i += 1
+                if i >= len(unique_elements):
+                    tasks_queue.add('idle')
+                else:
+                    tasks_queue.add(task_label)
+                    tasks_freq[task_label] = tasks_freq.get(task_label, 0) - 1
+                section_length -= 1
+                tasks_count += 1
+            return len(tasks_queue)
+
         """
-        tasks_queue = deque()
-        tasks_frequencies = dict()
-        tasks_count = len(tasks)
-
-        def compare_ascendingly_by_task_frequencies(task_1, task_2):
-            return tasks_frequencies.get(task_1, 0) - tasks_frequencies.get(task_2, 0)
-
+        tasks_freq = dict()
         for task in tasks:
-            tasks_frequencies[task] = tasks_frequencies.get(task, 0) + 1
-        available_tasks = deque(sorted(tasks_frequencies.keys(), key=functools.cmp_to_key(
-            compare_ascendingly_by_task_frequencies)))
-        # each section should have n distinctive tasks to pass the condition: there must be at least n units of time
-        # between any two same tasks.
-        distinctive_tasks_left_in_section = n
-        available_tasks_iterator = 0
-        while tasks_count > 0:
-            if distinctive_tasks_left_in_section <= 0:
-                distinctive_tasks_left_in_section = n
-                available_tasks_iterator = 0
-            if len(available_tasks) <= 0 or available_tasks_iterator >= len(available_tasks):
-                tasks_queue.append("idle")
-            else:
-                curr_task = available_tasks[available_tasks_iterator]
-                tasks_queue.append(curr_task)
-                tasks_frequencies[curr_task] = tasks_frequencies.get(
-                    curr_task, 0) - 1
-                tasks_count -= 1
-                # since our tasks_queue is sorted ascendingly based on the tasks_frequencies, the first task
-                # to run out first will be tasks_frequencies[0]. Hence, we set the iterator back to 0 if the current
-                # task runs out
-                if tasks_frequencies[curr_task] <= 0:
-                    available_tasks.popleft()
-                    available_tasks_iterator = 0
-            distinctive_tasks_left_in_section -= 1
+            tasks_freq[task] = tasks_freq.get(task, 0) + 1
+        tasks_queue = []
 
+        def compare_task_descendingly(task_1, task_2):
+            return tasks_freq.get(task_2, 0) - tasks_freq.get(task_1, 0)
+
+        print('tasks_freq = ', tasks_freq)
+        unique_elements = sorted(
+            tasks_freq.keys(), key=functools.cmp_to_key(compare_task_descendingly))
+        print('unique_elements = ', unique_elements)
+        i = 0
+        tasks_count = 0
+        section_length = n + 1
+        while tasks_count < len(tasks):
+            print('i = ', i)
+            print('section_length = ', section_length)
+            if section_length <= 0:
+                i = 0
+                section_length = n+1
+
+            while i < len(unique_elements) and tasks_freq[unique_elements[i]] <= 0:
+                i += 1
+            if i >= len(unique_elements):
+                # run out of unique tasks to add to the queue, so must append iddle
+                # to the section
+                tasks_queue.append('idle')
+            else:
+                tasks_count += 1
+                task_label = unique_elements[i]
+                tasks_queue.append(task_label)
+                tasks_freq[task_label] = tasks_freq.get(task_label, 0) - 1
+                # adjust i to move to a new task in our task list.
+                i += 1
+            section_length -= 1
+        print('tasks_queue = ', tasks_queue)
         return len(tasks_queue)
