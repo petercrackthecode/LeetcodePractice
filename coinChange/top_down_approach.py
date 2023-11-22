@@ -1,3 +1,4 @@
+# https://leetcode.com/problems/coin-change/
 from collections import defaultdict
 from typing import List
 
@@ -37,7 +38,7 @@ class Solution:
                 else:  # coin <= amount
                     remainder = amount - coin
                     min_coin_for_remainder = coinChangeHelper(remainder)
-                    # with the new amount, we can't draft any valid change
+                    # with the new amount, we can't draft any valid change => skip this case
                     if min_coin_for_remainder == -1:
                         continue
                     else:
