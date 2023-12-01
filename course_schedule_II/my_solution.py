@@ -1,4 +1,4 @@
-# https://leetcode.com/problems/course-schedule/description/
+# https://leetcode.com/problems/course-schedule-ii/
 from collections import defaultdict, deque
 from typing import List
 
