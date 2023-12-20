@@ -30,18 +30,18 @@ class Solution:
         taken_courses = set()
         graph = defaultdict(set)
         course_degree = defaultdict(int)
+
+        for course in range(numCourses):
+            course_degree[course] = 0
+
         for [depended, prereq] in prerequisites:
             graph[prereq].add(depended)
-            course_degree[prereq] = 0 if prereq not in course_degree else course_degree[prereq]
-            course_degree[depended] = 1 if depended not in course_degree else (
-                course_degree[depended] + 1)
+            course_degree[depended] += 1
 
         allowed_courses = deque()
         for course, deg in course_degree.items():
             if deg == 0:
                 allowed_courses.append(course)
-
-        # print('course_degree = ', course_degree)
 
         # no course starts with zero prereq => returns empty array.
         if len(allowed_courses) == 0:
@@ -63,10 +63,4 @@ class Solution:
         for deg in course_degree.values():
             if deg != 0:
                 return []
-        # if a course isn't listed in prerequisites, it means that course also has no prerequisites & no dependeds
-        # add those courses to the beginning of our output
-        for i in range(numCourses):
-            if i not in taken_courses:
-                output.appendleft(i)
-                taken_courses.add(i)
         return output
