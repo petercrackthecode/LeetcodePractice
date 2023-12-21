@@ -25,7 +25,8 @@ class Solution:
 
         fast = head
         slow = head
-        while True:
+        while fast != None:
+            slow = slow.next
             fast = fast.next
             if not fast:
                 return False
@@ -34,7 +35,5 @@ class Solution:
                 return False
             elif fast == slow:
                 return True
-
-            slow = slow.next
 
         return False
