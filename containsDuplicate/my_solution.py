@@ -1,11 +1,14 @@
 # https://leetcode.com/problems/contains-duplicate/
+from typing import List
+
+
 class Solution:
     def containsDuplicate(self, nums: List[int]) -> bool:
-        didNumberExist = dict()
+        unique_nums = set()
 
         for num in nums:
-            if num in didNumberExist:
+            if num in unique_nums:
                 return True
-            didNumberExist[num] = True
+            unique_nums.add(num)
 
         return False
