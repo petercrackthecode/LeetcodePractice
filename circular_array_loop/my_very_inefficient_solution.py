@@ -60,9 +60,9 @@ class Solution:
                 return False
 
             while fast != get_next_index(fast):
-                if has_cycle_after_move_fast():
+                if has_cycle_after_move_fast() or status == 0:
                     break
-                if has_cycle_after_move_fast():
+                if has_cycle_after_move_fast() or status == 0:
                     break
                 slow = get_next_index(slow)
 
