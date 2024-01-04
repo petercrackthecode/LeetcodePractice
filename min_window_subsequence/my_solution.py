@@ -1,5 +1,5 @@
-from collections import deque
 # https://leetcode.com/problems/minimum-window-subsequence/
+from collections import deque
 
 
 class Solution:
@@ -21,6 +21,7 @@ class Solution:
             increment right by 1
         if p is greater than or equal to len(s2) => we have a valid window:
             - backtrack to get the minimum contiguous substring, then assign the result to ans if its length is smaller than ans. Have a helper function call backtrack(left, right) to help you do so. Then, reassign 0 to p.
+            - move left to the next character in s1 that is equal to s2[0]
         """
         p = 0
         left = 0
@@ -58,6 +59,12 @@ class Solution:
                 # we just need to find the shortest substring within [left, right] that also contains p2 as a subsequence.
                 backtrack(left, right)
                 p = 0
-            right += 1
+                left += 1
+                while left < len(s1) and s1[left] != s2[p]:
+                    left += 1
+                    right = left
+                right = left
+            else:
+                right += 1
 
         return "" if len(ans) > len(s1) else ans
