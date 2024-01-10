@@ -52,4 +52,4 @@ class Solution:
             output += self.proceed_two_intervals(
                 last_interval_in_output, interval)
 
-        return output
+        return list(output)
