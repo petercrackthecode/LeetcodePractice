@@ -1,7 +1,6 @@
 # https://leetcode.com/problems/lru-cache/
 
 from typing import Optional
-from collections import defaultdict
 
 
 class Node:
