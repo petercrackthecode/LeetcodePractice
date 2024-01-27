@@ -30,10 +30,7 @@ class RandomizedSet:
         if val in self.num_to_index:
             return False
         # val doesn't exist in self.num_to_index => insert new elements
-        if self.size >= len(self.nums):
-            self.nums.append(val)
-        else:
-            self.nums[self.size] = val
+        self.nums.append(val)
         self.num_to_index[val] = self.size
         self.size += 1
 
@@ -62,10 +59,11 @@ class RandomizedSet:
         if val not in self.num_to_index:
             return False
         index = self.num_to_index[val]
-        self.nums[index], self.nums[self.size -
-                                    1] = self.nums[self.size-1], self.nums[index]
-
+        self.nums[index] = self.nums[self.size-1]
         self.num_to_index[self.nums[index]] = index
+
+        # remove the last element
+        self.nums.pop(-1)
         self.num_to_index.pop(val)
 
         self.size -= 1
