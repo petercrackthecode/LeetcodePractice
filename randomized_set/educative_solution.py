@@ -1,75 +1,47 @@
 # https://leetcode.com/problems/insert-delete-getrandom-o1/
-from random import randint
+from random import choice
 
 
-class RandomizedSet:
-    """
-    - We store our data in an array and use a hash map to track the location at which each data element 
-    is stored in the array.
-    - We use the hash map to look up the location of the element to delete.
-    - Swap the last element in the array with the one to be deleted.
-    - In the hash map, update the location of the element we just moved.
-    - Delete the key-value pair of the target data element from the hash map and then delete the target element
-    from our array.
-    """
-
+class RandomSet():
     def __init__(self):
-        self.nums = []
-        self.num_to_index = dict()
-        self.size = 0
+        self.indexor = {}  # Maps the actual value to its index
+        self.store = []   # Store the actual values in an array
 
-    def insert(self, val: int) -> bool:
+    # Function to insert a value
+    def insert(self, val):
         """
-        - if val exists in self.num_to_index => return False
-        - otherwise (val doesn't exist in self.num_to_index):
-          - self.nums[self.size] = val
-          - self.num_to_index[val] = self.size
-          - increment self.size by 1.
-        - return True
+        Inserts a value in the data structure.
+        Returns True if it did not already contain the specified element.
         """
-        if val in self.num_to_index:
+        if val in self.indexor:
             return False
-        # val doesn't exist in self.num_to_index => insert new elements
-        self.nums.append(val)
-        self.num_to_index[val] = self.size
-        self.size += 1
-
+        # Insert the actual value as a key and its index as a value
+        self.indexor[val] = len(self.store)
+        # Append a new value to array
+        self.store.append(val)
         return True
 
-    def remove(self, val: int) -> bool:
+    # Function to remove a value
+    def delete(self, val):
         """
-        - if val doesn't exist in self.num_to_index: return False
-        - otherwise (val exists in self.num_to_index => must remove):
-          - get the index of element equals to val in nums: index = self.num_to_index[val]
-          - swap self.nums[index] with the last element: self.nums[self.size-1]
-          - assign self.num_to_index[self.nums[index]] = index
-          - pop: self.num_to_index.pop(val)
-          - decrement self.size by 1
-
-        - return True
-
-        r: RandomizedSet
-        i: insert
-        r: remove
-        g: getRandom
-
-        r  | i | i | r | i | r | g
-        [] | 0 | 1 | 0 | 2 | 1 | []
+        Removes a value from the data structure.
+        Returns True if it contains the specified element.
         """
-        if val not in self.num_to_index:
-            return False
-        index = self.num_to_index[val]
-        self.nums[index] = self.nums[self.size-1]
-        self.num_to_index[self.nums[index]] = index
+        if val in self.indexor:
+            # swap the last element in the array with the element
+            # to delete, update the location of the moved element
+            # in its entry in the hash map
+            last, i = self.store[-1], self.indexor[val]
+            self.store[i], self.indexor[last] = last, i
+            # delete the last element
+            del self.indexor[val]
+            self.store.pop()
+            return True
+        return False
 
-        # remove the last element
-        self.nums.pop(-1)
-        self.num_to_index.pop(val)
-
-        self.size -= 1
-
-        return True
-
-    def getRandom(self) -> int:
-        random_index = randint(0, self.size-1)
-        return self.nums[random_index]
+    # Function to generate a random value
+    def get_random(self):
+        """
+        Choose an element at random from the data structure.
+        """
+        return choice(self.store)
