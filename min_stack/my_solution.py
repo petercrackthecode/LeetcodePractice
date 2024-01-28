@@ -4,36 +4,44 @@ from collections import deque
 
 class MinStack:
     """
-    - Use a deque to represent a stack.
-    - Every time we push an element into our stack, we gotta find a way to keep track of its for max and min.
-    - Maybe we can have a stack called min_so_far which save the current min element in the stack.
-    - Because every time we pop an element from our stack, it's just a revert step of the previous push.
+    ["MinStack","push","push","push","getMin","pop","top","getMin"]
+    [[],[-2],[0],[-3],[],[],[],[]]
+
+    top                                                                         0
+    min:   None -> -2  ->  -2.    ->  -3.            -3              -2         -2            -2
+    stack: []  -> [-2] -> [-2, 0] -> [-2, 0, -3] -> [-2, 0, -3] -> [-2, 0] -> [-2, 0] -> [-2, 0]
+
+    => maintain the min_so_far and a min_stack as the stack being pushed and popped. min_stack should have the same size as our main stack (len(self.min_stack) == len(self.stack))
+min_so_far:[]. -> [-2] -> [-2,-2] -> [-2,-2,-3]  -> [-2, -2, -3]-> [-2,-2] -> [-2,-2] -> [-2,-2]
     """
 
     def __init__(self):
-        self.min_so_far = deque()
+        """
+        initializes the stack object
+        - the last element in self.min_stack (self.min_stack[-1]) is always the smallest element so far in our stack
+        """
         self.stack = deque()
+        self.min_stack = deque()
 
+    # push the element val onto the stack
     def push(self, val: int) -> None:
+        min_so_far = val if len(self.min_stack) == 0 else min(
+            self.min_stack[-1], val)
         self.stack.append(val)
+        self.min_stack.append(min_so_far)
 
-        current_min = float('inf')
-
-        if len(self.min_so_far) == 0 or val < self.min_so_far[-1]:
-            current_min = val
-        else:
-            current_min = self.min_so_far[-1]
-        self.min_so_far.append(current_min)
-
+    # remove the element on top of the stack
     def pop(self) -> None:
         self.stack.pop()
-        self.min_so_far.pop()
+        self.min_stack.pop()
 
+    # get the top element in the stack
     def top(self) -> int:
         return self.stack[-1]
 
+    # get the minimum element in the stack.
     def getMin(self) -> int:
-        return self.min_so_far[-1]
+        return self.min_stack[-1]
 
 
 # Your MinStack object will be instantiated and called as such:
