@@ -1,6 +1,5 @@
 # https://leetcode.com/problems/lfu-cache/
 from collections import defaultdict
-
 # get and put must each run in O(1) average time complexity.
 # when the key is first inserted into the cache, its use counter (or frequency) is set to 1
 """
@@ -30,27 +29,46 @@ class LFUCache:
             - use_counter[key] = 1
 
         We should have timestamp:int that increment each time an operation of get and put is used.
-        And, another dictionary called last_used (key: int, value: the last timestamp the key is used: int) to look up the last time_stamp that a key is used:
+        And, another dictionary called last_used (key: int, value: the last timestamp the key is used: int) to look up the last time_stamp that a key is used.
     """
     # initialize the object with the capacity of the data structure
 
     def __init__(self, capacity: int):
         self.capacity = capacity
+
         self.use_freq = defaultdict(int)
         self.cache = defaultdict(int)
+
         self.timestamp: int = 0
         self.last_used = defaultdict(int)
+
+        self.lowest_freq = 0
+        self.keys_lookup_by_freq = defaultdict(set)
     # get the value of the key & return that value if the key exists in the cache.
     # Otherwise, return -1
 
     def get(self, key: int) -> int:
+        # print('getting key = ', key)
+        # print('self.keys_lookup_by_freq = ', self.keys_lookup_by_freq)
+        # print('self.lowest_freq = ', self.lowest_freq)
+        # print()
+
         if key not in self.cache:
             return -1
 
         self.timestamp += 1
         self.last_used[key] = self.timestamp
 
-        self.use_freq[key] += 1
+        old_use_freq = self.use_freq[key]
+        new_use_freq = self.use_freq[key] + 1
+
+        self.use_freq[key] = new_use_freq
+        self.keys_lookup_by_freq[old_use_freq].discard(key)
+        self.keys_lookup_by_freq[new_use_freq].add(key)
+
+        if len(self.keys_lookup_by_freq[old_use_freq]) == 0:
+            self.lowest_freq = new_use_freq
+
         return self.cache[key]
     # - If the key exists in the cache, update its value
     # - Otherwise, insert the key with the value to the cache
@@ -65,33 +83,47 @@ class LFUCache:
         # when we need to remove the least frequently used key, loop through the key_freq dictionary to find the key whose the frequency is the smallest, and remove that said key.
 
         # adding new key, but reached maximum capacity => need to remove the key with the lowest use frequency
+        # print(f'putting (key, value) = ({key}, {value})')
+        # print('self.keys_lookup_by_freq = ', self.keys_lookup_by_freq)
+        # print('self.lowest_freq = ', self.lowest_freq)
+
         if key not in self.cache and len(self.cache) == self.capacity:
-            keys_with_lowest_freq = [list(self.use_freq.keys())[0]]
-            lowest_freq = self.use_freq[keys_with_lowest_freq[0]]
-
-            for _key, freq in self.use_freq.items():
-                if freq < lowest_freq:
-                    keys_with_lowest_freq = [_key]
-                    lowest_freq = freq
-                elif freq == lowest_freq:
-                    keys_with_lowest_freq.append(_key)
-
-            removed_key = keys_with_lowest_freq[0]
-
+            keys_with_lowest_freq = self.keys_lookup_by_freq[self.lowest_freq]
+            removed_key = list(keys_with_lowest_freq)[0]
+            # print('keys_with_lowest_freq = ', keys_with_lowest_freq)
             if len(keys_with_lowest_freq) > 1:
                 # len(keys_with_lowest_freq) > 1 => more than one key with the lowest freq => find the key with the smallest self.last_used[key] (LRU)
                 for _key in keys_with_lowest_freq:
                     if _key in self.last_used and self.last_used[_key] < self.last_used[removed_key]:
                         removed_key = _key
+            # print('removed_key = ', removed_key)
+            removed_key_freq = self.use_freq[removed_key]
+            # print('removed_key_freq = ', removed_key_freq)
+            self.keys_lookup_by_freq[removed_key_freq].discard(removed_key)
+
             self.cache.pop(removed_key)
             self.use_freq.pop(removed_key)
             self.last_used.pop(removed_key)
+
+        old_use_freq = self.use_freq[key]
+        new_use_freq = self.use_freq[key] + 1
+        self.keys_lookup_by_freq[old_use_freq].discard(key)
+        self.keys_lookup_by_freq[new_use_freq].add(key)
+        if key not in self.cache:
+            # adding new key
+            self.lowest_freq = 1
+        else:
+            self.lowest_freq = self.lowest_freq if len(
+                self.keys_lookup_by_freq[old_use_freq]) > 1 else new_use_freq
 
         self.cache[key] = value
         self.timestamp += 1
         self.last_used[key] = self.timestamp
 
-        self.use_freq[key] += 1
+        self.use_freq[key] = new_use_freq
+
+        # print()
+
 
 # Your LFUCache object will be instantiated and called as such:
 # obj = LFUCache(capacity)
