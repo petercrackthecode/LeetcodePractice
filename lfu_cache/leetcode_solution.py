@@ -8,53 +8,83 @@ Logic breakdowns:
 - we need to keep track of frequencies of a key and the value associated with the key.
 - in order to drop the key with least frequency, we gotta know the minimum frequency at all times.
 - among all the minimum frequency elements, we need the least recently used item to drop.
+
+We keep two data structures, use_freq_lookup and group_dict_by_use_freq:
+- use_freq_lookup: given a key, returns its use_frequency:
+    - key: a key: int
+    - value: the frequency of the said key: int
+- group_dict_by_use_freq:
+    - key: an use frequency: int
+    - value: a dictionary of (key: int, value: int) whose frequencies == key: OrderedDict because we want to maintain
+    an lru cache.
 '''
 
 
 class LFUCache:
     def __init__(self, capacity: int):
-        self.frequencies: DefaultDict[int, OrderedDict] = defaultdict(
+        # given a use frequency as a key, return a dictionary of keys and values that share
+        # that same use frequency.
+        self.group_dict_by_use_freq: DefaultDict[int, OrderedDict[int, int]] = defaultdict(
             lambda: OrderedDict())
-        self.values = defaultdict(int)
+        # given a key, return its use frequency
+        self.use_freq_lookup = defaultdict(int)
         self.capacity = capacity
         self.min_freq = float('inf')
 
     def get(self, key: int) -> int:
-        f = self.values[key]
+        freq = self.use_freq_lookup[key]
 
-        if not f:
-            del self.values[key]
+        if not freq:
+            # if the key has no use frequency, that means it's already flunked out of the cache => remove it
+            del self.use_freq_lookup[key]
             return -1
 
-        self.frequencies[f+1][key] = self.frequencies[f][key]
-        self.values[key] = f+1
+        new_freq = freq + 1
+        # since we're getting the said key, its frequency is incremented by 1.
+        # => move the said key to a new frequency.
+        self.group_dict_by_use_freq[new_freq][key] = self.group_dict_by_use_freq[freq][key]
+        # increment the use frequency of the said key
+        self.use_freq_lookup[key] = new_freq
 
-        del self.frequencies[f][key]
+        # remove the key from the old frequency
+        del self.group_dict_by_use_freq[freq][key]
 
-        if self.min_freq == f and not len(self.frequencies[f]):
-            self.min_freq = f+1
+        # if the key we've just incremented has the smallest frequency and it is the only one with that frequency
+        # update the self.min_freq to the new frequency
+        if self.min_freq == freq and not len(self.group_dict_by_use_freq[freq]):
+            self.min_freq = new_freq
 
-        return self.frequencies[f+1][key]
+        return self.group_dict_by_use_freq[new_freq][key]
 
     def put(self, key: int, value: int) -> None:
+        # if the cache's capacity is 0 (Falsy value), we cannot add any element to it.
         if not self.capacity:
             return
 
-        if len(self.values) == self.capacity:
-            if not self.values[key]:
-                k = self.frequencies[int(self.min_freq)].popitem(last=False)
-                del self.values[k[0]]
+        # our cache is full
+        if len(self.use_freq_lookup) == self.capacity:
+            # and we're adding in a new key => we must remove the key with the lfu and lru.
+            if not self.use_freq_lookup[key]:
+                # gotta convert self.min_freq to an int type since we initially set it to float('inf') as the
+                # dummy value
+                min_freq = int(self.min_freq)
+                # pop the least recently used key among the keys with the lowest use frequencies
+                lru_key, _ = self.group_dict_by_use_freq[min_freq].popitem(
+                    last=False)
+                del self.use_freq_lookup[lru_key]
 
-        f = self.values[key]
-        self.values[key] += 1
+        curr_freq = self.use_freq_lookup[key]
+        new_freq = curr_freq + 1
+        self.use_freq_lookup[key] = new_freq
 
-        if f != 0:
-            self.frequencies[f+1][key] = value
-            del self.frequencies[f][key]
+        if curr_freq != 0:  # existing key
+            self.group_dict_by_use_freq[new_freq][key] = value
+            del self.group_dict_by_use_freq[curr_freq][key]
 
-            if self.min_freq == f and not len(self.frequencies[f]):
-                self.min_freq = f+1
-        else:
-            self.frequencies[f+1][key] = value
+            if self.min_freq == curr_freq and not len(self.group_dict_by_use_freq[curr_freq]):
+                self.min_freq = new_freq
+        else:  # new key
+            self.group_dict_by_use_freq[new_freq][key] = value
 
-        self.min_freq = min(self.values[key], self.min_freq)
+        # make sure our new_freq is always the smallest
+        self.min_freq = min(self.use_freq_lookup[key], self.min_freq)

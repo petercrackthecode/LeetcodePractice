@@ -26,6 +26,8 @@ class UseFreqNode:
     def remove_key(self, _key: int):
         self.keys_with_use_freq.pop(_key)
         
+    def add_next_node(self, next_node: Optional["UseFreqNode"]) -> None:
+        pass
 
 class LFUCache:
     """
@@ -55,16 +57,28 @@ class LFUCache:
         # remove the key from the current use_freq
         # add the key to the next_use_freq (use_freq + 1)
         if _key not in self.cache or _key not in self.use_freq_lookup:
-            return
+            # new key
+
+            # the smallest frequency (1) already exists at self.use_freq_head => add that key there
+            if self.use_freq_head and self.use_freq_head.use_freq == 1:
+                self.use_freq_head.add_key(_key)
+            else:
+                # we need to add a node with the use_freq == 1 to the head & update the head node
+                new_head = UseFreqNode(1)
+                self.add_to_head(new_head)
     
         use_freq_node = self.use_freq_lookup[_key]
         if use_freq_node:
             curr_use_freq = use_freq_node.use_freq
             next_use_freq = curr_use_freq + 1
             use_freq_node.remove_key(_key)
-            
-
-
+            next_freq = use_freq_node.next
+            if next_freq and next_freq.use_freq == next_use_freq:
+                next_freq.add_key(_key)
+            else:
+                new_freq_node = UseFreqNode(next_use_freq)
+                new_freq_node.add_key(_key)
+                use_freq_node.add_next_node(new_freq_node)
     
     # if the key doesn't exist in the cache, return -1
     # otherwise, increment the key's use counter by 1 & return the value at key
@@ -82,7 +96,10 @@ class LFUCache:
             if next_head:
                 next_head.prev = None
             self.use_freq_head = next_head
-        
+    
+    def add_to_head(self, node: Optional["UseFreqNode"]) -> None:
+        pass
+
     # if the key already exists in the cache, update the value at the key.
     # Otherwise (the key doesn't exist in the cache => adding a new key):
     #   - if the cache reaches its capacity (len(self.cache) == self.capacity), remove the key with the smallest use_count. If there are multiple keys with the same smallest use_count, remove the lru key.
@@ -101,5 +118,5 @@ class LFUCache:
                 if len(self.use_freq_head.keys_with_use_freq) == 0:
                     self.remove_head()
         
-        self.cache[_key] = _value
         self.increment_use_freq(_key)
+        self.cache[_key] = _value
