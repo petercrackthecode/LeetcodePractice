@@ -29,16 +29,13 @@ class LFUCache:
         # given a key, return its use frequency
         self.use_freq_lookup = defaultdict(int)
         self.capacity = capacity
-        self.min_freq = float('inf')
+        self.min_freq = 4 * 10**5
 
     def get(self, key: int) -> int:
-        freq = self.use_freq_lookup[key]
-
-        if not freq:
-            # if the key has no use frequency, that means it's already flunked out of the cache => remove it
-            del self.use_freq_lookup[key]
+        if key not in self.use_freq_lookup:
             return -1
 
+        freq = self.use_freq_lookup[key]
         new_freq = freq + 1
         # since we're getting the said key, its frequency is incremented by 1.
         # => move the said key to a new frequency.
@@ -51,7 +48,7 @@ class LFUCache:
 
         # if the key we've just incremented has the smallest frequency and it is the only one with that frequency
         # update the self.min_freq to the new frequency
-        if self.min_freq == freq and not len(self.group_dict_by_use_freq[freq]):
+        if len(self.group_dict_by_use_freq[self.min_freq]) == 0:
             self.min_freq = new_freq
 
         return self.group_dict_by_use_freq[new_freq][key]

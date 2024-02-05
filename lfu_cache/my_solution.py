@@ -1,122 +1,99 @@
-# https://leetcode.com/problems/lfu-cache/
-from typing import Optional, DefaultDict
-from collections import OrderedDict, defaultdict
+# https://leetcode.com/problems/lfu-cache
+from typing import DefaultDict
+from collections import defaultdict, OrderedDict
 
-class UseFreqNode:
-    def __init__(self, _use_freq: int = 1, _prev: Optional["UseFreqNode"] = None, _next: Optional["UseFreqNode"] = None):
-        self.use_freq = _use_freq
-        # the last key is the most recently used key
-        # the first key is the least recently used key
-        self.keys_with_use_freq = OrderedDict()
-        self.prev = _prev
-        self.next = _next
+"""
+    ["LFUCache","put","put","get","get","get","put","put","get","get","get","get"]
+    [[3],[2,2],[1,1],[2],[1],[2],[3,3],[4,4],[3],[2],[1],[4]]
 
-    def get_lru_key(self) -> int:
-        if len(self.keys_with_use_freq) == 0:
-            raise KeyError("There is no key exists with the current use frequency")
-        
-        return list(self.keys_with_use_freq.keys())[0]
+out:[null,null,null,2,1,2,null,null,  3 ,2,-1,4]
+exp:[null,null,null,2,1,2,null,null, -1 ,2,1,4]
+"""
 
-    def add_key(self, _key: int):
-        if _key in self.keys_with_use_freq:
-            self.keys_with_use_freq.move_to_end(_key, last=True)
-        else:
-            self.keys_with_use_freq[_key] = True
-
-    def remove_key(self, _key: int):
-        self.keys_with_use_freq.pop(_key)
-        
-    def add_next_node(self, next_node: Optional["UseFreqNode"]) -> None:
-        pass
 
 class LFUCache:
-    """
-    This problem's topics are Hash Table, Linked List, Design, and Doubly-Linked List.
-    - Can we apply any methods we learned from the LRU cache problem?
-    - Normally, we need to have a use_counter dictionary to keep track of the usage of a key. But, when we want to evade the least frequently used key (the key with the lowest use_counter point), we gotta loop through the entire use_counter dictionary to find it. Can we do better?
-    - Also, there can be multiple keys with the same LFU count, so we gotta pick one key among them that least recently used. But, how do we know if a key is used before or after another key? If we bruteforce it, we traverse from head to tail and whenever we see a key exists in our LFU keys_list, we stop the traversal and remove that key.
 
-    Should we have two dictionaries?
-    Can we apply the dictionary with value linked to a doubly-linked list approach to the frequency?
-    """
-
-    # initializes the object with the capacity of the data structure
     def __init__(self, capacity: int):
         self.capacity = capacity
-        # self.cache: key: key: int, value: value: int.
-        self.cache: DefaultDict[int, int] = defaultdict(lambda: -1)
-        self.use_freq_lookup: DefaultDict[int, Optional["UseFreqNode"]] = defaultdict(lambda: None)
-        # These pointers represent the head & tail of the doubly linked list that point to the useFreq nodes.
-        # self.use_freq_head is the smallest frequency
-        self.use_freq_head: Optional["UseFreqNode"] = None
-        # self.use_freq_tail is the greatest frequency
-        self.use_freq_tail: Optional["UseFreqNode"] = None
+        self.use_freq_lookup: DefaultDict[int, int] = defaultdict(int)
+        self.group_key_by_use_freq: DefaultDict[int, OrderedDict[int, int]] = (
+            DefaultDict(lambda: OrderedDict())
+        )
+        self.min_use_freq = 4 * 10**5
 
-    # given a key, increment the use frequency of that key by 1.
-    def increment_use_freq(self, _key: int) -> None:
-        # remove the key from the current use_freq
-        # add the key to the next_use_freq (use_freq + 1)
-        if _key not in self.cache or _key not in self.use_freq_lookup:
-            # new key
+    """
+    - If the key exists in the cache:
+        - increment its use_count by 1.
+        - move the key's to a new group of use_freq in self.group_key_by_use_freq
+        - update self.min_use_freq if needed
+        - return the value at key
+    - otherwise, return -1
+    """
 
-            # the smallest frequency (1) already exists at self.use_freq_head => add that key there
-            if self.use_freq_head and self.use_freq_head.use_freq == 1:
-                self.use_freq_head.add_key(_key)
-            else:
-                # we need to add a node with the use_freq == 1 to the head & update the head node
-                new_head = UseFreqNode(1)
-                self.add_to_head(new_head)
-    
-        use_freq_node = self.use_freq_lookup[_key]
-        if use_freq_node:
-            curr_use_freq = use_freq_node.use_freq
-            next_use_freq = curr_use_freq + 1
-            use_freq_node.remove_key(_key)
-            next_freq = use_freq_node.next
-            if next_freq and next_freq.use_freq == next_use_freq:
-                next_freq.add_key(_key)
-            else:
-                new_freq_node = UseFreqNode(next_use_freq)
-                new_freq_node.add_key(_key)
-                use_freq_node.add_next_node(new_freq_node)
-    
-    # if the key doesn't exist in the cache, return -1
-    # otherwise, increment the key's use counter by 1 & return the value at key
     def get(self, key: int) -> int:
-        if key not in self.cache:
+        if key not in self.use_freq_lookup:
             return -1
-        
-        self.increment_use_freq(key)
 
-        return self.cache[key]
+        # key in self.use_freq_lookup
+        curr_use_freq = self.use_freq_lookup[key]
+        next_use_freq = curr_use_freq + 1
+        val = self.group_key_by_use_freq[curr_use_freq][key]
+
+        self.use_freq_lookup[key] = next_use_freq
+        self.group_key_by_use_freq[next_use_freq][key] = val
+        self.group_key_by_use_freq[curr_use_freq].pop(key)
+
+        # either we have no element with the (self.min_use_freq) frequency, or we have a new min_use_freq (self.min_use_freq > next_use_freq)
+        if (
+            len(self.group_key_by_use_freq[self.min_use_freq]) == 0
+            or next_use_freq < self.min_use_freq
+        ):
+            self.min_use_freq = next_use_freq
+
+        return val
+
+    """    
+    - if the key is already in the cache:
+        - update its value in the cache.
+    - if the key doesn't exist in the cache & the cache reaches its capacity (len(self.use_freq_lookup) == self.capacity):
+        - get the lru_key from self.group_key_by_use_freq[self.min_use_freq]
+        - remove the said lru_key from self.group_key_by_use_freq[self.min_use_freq]
+        - remove the said lru_key from self.use_freq_lookup
     
-    def remove_head(self) -> None:
-        if self.use_freq_head:
-            next_head = self.use_freq_head.next
-            if next_head:
-                next_head.prev = None
-            self.use_freq_head = next_head
-    
-    def add_to_head(self, node: Optional["UseFreqNode"]) -> None:
-        pass
+    - curr_use_freq = self.use_freq_lookup[key]
+    - next_use_freq = curr_use_freq plus 1
+    - increment the use frequency of the key by 1, and update self.use_freq_lookup[key] accordingly.
+    - remove key from self.group_key_by_use_freq[curr_use_freq] and add key & value to self.group_key_by_use_freq[next_use_freq]
 
-    # if the key already exists in the cache, update the value at the key.
-    # Otherwise (the key doesn't exist in the cache => adding a new key):
-    #   - if the cache reaches its capacity (len(self.cache) == self.capacity), remove the key with the smallest use_count. If there are multiple keys with the same smallest use_count, remove the lru key.
-    #   - add the key with the value & increment the use_freq at that key.
-    def put(self, _key: int, _value: int) -> None:
-        if _key not in self.cache and len(self.cache) == self.capacity:
-            # remove the key with the smallest use_count and lru
-            # the smallest frequency is at self.use_freq_head
-            if self.use_freq_head != None:
-                lru_key = self.use_freq_head.get_lru_key()
-                self.use_freq_head.remove_key(lru_key)
+    - if the self.group_key_by_use_freq[curr_use_freq] is empty:
+        - update self.min_use_freq accordingly.
+        - remove curr_use_freq from self.group_key_by_use_freq
+    """
 
-                self.use_freq_lookup.pop(lru_key)
-                self.cache.pop(lru_key)
+    def put(self, key: int, value: int):
+        curr_use_freq = (
+            0 if key not in self.use_freq_lookup else self.use_freq_lookup[key]
+        )
+        next_use_freq = curr_use_freq + 1
 
-                if len(self.use_freq_head.keys_with_use_freq) == 0:
-                    self.remove_head()
-        
-        self.increment_use_freq(_key)
-        self.cache[_key] = _value
+        # self.should_print and print(f'curr_use_freq = {curr_use_freq}')
+        # self.should_print and print(f'len(self.use_freq_lookup) = {len(self.use_freq_lookup)}')
+
+        # we've reached the capacity & a new key is being added.
+        if curr_use_freq == 0 and len(self.use_freq_lookup) >= self.capacity:
+            lru_key, _ = self.group_key_by_use_freq[self.min_use_freq].popitem(
+                last=False
+            )
+            self.use_freq_lookup.pop(lru_key)
+
+        self.use_freq_lookup[key] = next_use_freq
+        if curr_use_freq in self.group_key_by_use_freq:
+            self.group_key_by_use_freq[curr_use_freq].pop(key)
+        self.group_key_by_use_freq[next_use_freq][key] = value
+
+        # either we have no element with the (self.min_use_freq) frequency, or we have a new min_use_freq (self.min_use_freq > next_use_freq)
+        if (
+            len(self.group_key_by_use_freq[self.min_use_freq]) == 0
+            or next_use_freq < self.min_use_freq
+        ):
+            self.min_use_freq = next_use_freq
