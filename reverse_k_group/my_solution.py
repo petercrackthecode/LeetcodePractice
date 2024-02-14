@@ -25,6 +25,14 @@ def reverse_sub_list(start: Optional["ListNode"], end: Optional["ListNode"]) -> 
     start.next = next_start
 
 
+"""
+- Use a pointer to try to traverse k nodes in the linked list
+- If the pointer successfully traverses a group of k nodes, reverse this group.
+- Reconnect the reversed group of k nodes with the rest of the linked list.
+- Repeat this process until less than k or no nodes are left in the linked list.
+"""
+
+
 class Solution:
 
     def reverseKGroup(self, head: Optional["ListNode"], k: int) -> Optional["ListNode"]:
