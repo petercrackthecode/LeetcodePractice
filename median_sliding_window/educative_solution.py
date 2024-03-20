@@ -84,8 +84,8 @@ def median_sliding_window(nums: List[int], k: int) -> List[float]:
         balance = 0
 
         # Remove invalid numbers present in the diciionary from top of max heap
-        while (small_list[0] * -1) in outgoing_num and (outgoing_num[(small_list[0] * -1)] > 0):
-            outgoing_num[small_list[0] * -1] = outgoing_num[small_list[0] * -1] - 1
+        while (-small_list[0]) in outgoing_num and (outgoing_num[-small_list[0]] > 0):
+            outgoing_num[-small_list[0]] = outgoing_num[small_list[0] * -1] - 1
             heappop(small_list)
 
         # Remove invalid numbers present in the hash map from top of min heap
