@@ -33,11 +33,7 @@ class TicTacToe:
                 ):
                     has_winner = False
                     break
-            # found a valid row
             if has_winner:
-                # print('won horizontally')
-                # print(f'row = {r}, col = {c}')
-                # print(f'self.board = {self.board}')
                 return self.board[r][c]
 
         return 0
@@ -53,10 +49,7 @@ class TicTacToe:
                 ):
                     has_winner = False
                     break
-                # found a valid column
             if has_winner:
-                # print('won vertically')
-                # print(f'self.board = {self.board}')
                 return self.board[r][c]
         return 0
 
@@ -109,11 +102,4 @@ class TicTacToe:
 
     def move(self, row: int, col: int, player: int) -> int:
         self.board[row][col] = player
-        # print(f'\nself.board = {self.board}')
         return self.check_horizontally() or self.check_vertically() or self.check_diagonally()
-        """
-        2
-        
-        0 1
-        1 2
-        """
