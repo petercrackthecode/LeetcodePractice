@@ -32,15 +32,6 @@ class TicTacToe:
             self.diagonal[1] = (
                 (self.diagonal[1] + 1) if (row + col == self.board_size - 1) else self.diagonal[1]
             )
-
-            if (
-                abs(self.row[row]) == self.board_size
-                or abs(self.col[col]) == self.board_size
-                or abs(self.diagonal[0]) == self.board_size
-                or abs(self.diagonal[1]) == self.board_size
-            ):
-                # player 1 won
-                return 1
         else:  # player == 2
             self.row[row] -= 1
             self.col[col] -= 1
@@ -49,13 +40,13 @@ class TicTacToe:
                 (self.diagonal[1] - 1) if (row + col == self.board_size - 1) else self.diagonal[1]
             )
 
-            if (
-                abs(self.row[row]) == self.board_size
-                or abs(self.col[col]) == self.board_size
-                or abs(self.diagonal[0]) == self.board_size
-                or abs(self.diagonal[1]) == self.board_size
-            ):
-                # player 2 won
-                return 2
+        if (
+            abs(self.row[row]) == self.board_size
+            or abs(self.col[col]) == self.board_size
+            or abs(self.diagonal[0]) == self.board_size
+            or abs(self.diagonal[1]) == self.board_size
+        ):
+            # the current player has won
+            return player
 
         return 0
