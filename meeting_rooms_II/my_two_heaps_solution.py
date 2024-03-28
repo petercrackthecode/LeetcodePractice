@@ -6,6 +6,15 @@ from typing import List
 class Solution:
     def minMeetingRooms(self, intervals: List[List[int]]) -> int:
         """
+        *** LOGIC ***
+        - If we have a new meeting to run, see if by that meeting's start_time, we can remove any finished meeting
+        from our running_meeting_endtimes heap (tracked by their end_times)
+        - Then, add the new meeting's end time to running_meeting_endtimes.
+        - Basically, when we have a new meeting to run, is there some meetings that already finishes?
+            - If yes, we remove those finished meetings' room and allocate one of 'em to our new meeting.
+            - No: we allocate a new room to our new meeting, increment our total rooms needed for these meetings by 1.
+
+        *** STEPS ***
         - ans:int = 0
         - have 2 min heaps: meetings (List[Tuple[int, int]]) and running_meeting_endtimes (List[int]). tasks save the tuple within intervals where running_meeting_endtimes save the end times of ongoing meetings.
         - loop: for each interval in intervals: add interval to meetings
