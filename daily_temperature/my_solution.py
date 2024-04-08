@@ -1,6 +1,5 @@
 # https://leetcode.com/problems/daily-temperatures/description/
-from typing import List
-
+from typing import List, Tuple
 
 class Solution:
     def dailyTemperatures(self, temperatures: List[int]) -> List[int]:
