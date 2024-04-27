@@ -1,23 +1,33 @@
 from typing import List
 
-def find_max_knapsack_profit_helper(capacity: int, weights: List[int], values: List[int], n: int):
-  # Base case
-  if n == 0 or capacity == 0:
-    return 0
-  
-  # Recursive case
-  # If the weight of the nth item is less than capacity, then:
-  if weights[n-1] <= capacity:
-    # We either include the item and deduct the weight of item from the knapsack capacity (to get the remaining capcity)
-    # or, we don't include the item at all. We pick the option that yields the highest value.
-    return max(
-      values[n-1] + find_max_knapsack_profit_helper(capacity - weights[n-1], weights, values, n-1),
-      find_max_knapsack_profit_helper(capacity, weights, values, n-1)
-    )
-  else:
-    # Item can't be added to our knapsack if its weight is greater than the capacity
-    return find_max_knapsack_profit_helper(capacity, weights, values, n-1)
 
-def find_max_knapsack_profit(capacity, weights, values):
-  n = len(weights)
-  return find_max_knapsack_profit_helper(capacity, weights, values, n)
+def find_max_knapsack_profit_helper(
+    capacity: int, weights: List[int], values: List[int], n: int
+) -> int:
+    """
+    n represents the number of available items.
+
+    - base case: if capacity is 0 or n (the number of available items) is 0, return 0
+    - otherwise, if weights[n-1] > capacity, we cannot put the current item to the bag, return find_max_knapsack_profit_helper(capacity, weights, values, n-1)
+    (we use n-1 because we start counting list's indices from 0)
+    - otherwise, we can fit weights[n-1] to our bag, we have to decide to choose it or not since we want the max total value
+    => return max(find_max_knapsack_profit_helper(capacity, weights, values, n-1), find_max_knapsack_profit_helper(capacity-weights[n-1], weights, values, n-1) + values[n-1])
+    """
+    if capacity == 0 or n == 0:
+        return 0
+    elif weights[n - 1] > capacity:
+        return find_max_knapsack_profit_helper(capacity, weights, values, n - 1)
+    else:
+        return max(
+            find_max_knapsack_profit_helper(capacity, weights, values, n - 1),
+            find_max_knapsack_profit_helper(
+                capacity - weights[n - 1], weights, values, n - 1
+            )
+            + values[n - 1],
+        )
+
+
+def find_max_knapsack_profit(
+    capacity: int, weights: List[int], values: List[int]
+) -> int:
+    return find_max_knapsack_profit_helper(capacity, weights, values, len(weights))
