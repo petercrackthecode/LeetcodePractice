@@ -1,5 +1,5 @@
 # https://leetcode.com/problems/coin-change/
-from typing import List
+from typing import List, Dict
 
 
 class Solution:
@@ -25,19 +25,24 @@ class Solution:
 
         return min_coins[amount]
         """
-        min_coins = dict()
+        min_coins: Dict[int, int] = dict()
         min_coins[0] = 0
 
-        for curr_amount in range(1, amount+1):
-            min_coins_for_curr_amount = curr_amount + 1
+        for curr_amount in range(1, amount + 1):
+            min_coins_for_curr_amount: int = curr_amount + 1
             for coin in coins:
-                remainder = curr_amount - coin
+                remainder: int = curr_amount - coin
                 if remainder < 0:
                     continue
                 if min_coins[remainder] != -1:
                     min_coins_for_curr_amount = min(
-                        min_coins_for_curr_amount, 1 + min_coins[remainder])
+                        min_coins_for_curr_amount, 1 + min_coins[remainder]
+                    )
 
-            min_coins[curr_amount] = min_coins_for_curr_amount if min_coins_for_curr_amount != curr_amount + 1 else -1
+            min_coins[curr_amount] = (
+                min_coins_for_curr_amount
+                if min_coins_for_curr_amount != curr_amount + 1
+                else -1
+            )
 
         return min_coins[amount]
