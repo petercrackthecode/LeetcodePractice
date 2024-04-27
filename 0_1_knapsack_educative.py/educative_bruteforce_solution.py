@@ -1,5 +1,18 @@
 from typing import List
 
+"""
+*** ALGORITHM:
+- Base case: If there are no items left to add or the maximum capacity of the knapsack has been reached, we return 0.
+- Recursive case 1: If the current item has a weight less than or equal to the remaining capacity of the knapsack, it can be
+added to the knapsack. At this point, we make two recursive calls to solve two sub-problems:
+  - Find the maximum value of items we can include in the knapsack, while including the current item.
+  - Find the maximum value of items we can include in the knapsack, while excluding the current item.
+Of the two options, we choose the one that yields the higher value.
+- Recursive case 2: On the other hand, if the weight of the item is greater than the remaining capacity of the knapsack, the item
+cannot be added to the knapsack. Therefore, we use a recursive call to move on to the next item, without adding this item to the knapsack.
+
+"""
+
 
 def find_max_knapsack_profit_helper(
     capacity: int, weights: List[int], values: List[int], n: int
