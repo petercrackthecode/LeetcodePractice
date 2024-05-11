@@ -24,8 +24,8 @@ class Solution:
         One edge case: when nums has only one element (we cannot divide to the subarray cases below) => return nums[0]
 
         2 cases: given that n = len(nums)
-        - we pick the first index => we cannot consider the last index => consider the index from 0..n-2 only
-        - we don't pick the first index => our case will results from index 1..n-1
+        - we pick the prev_prev index => we cannot consider the last index => consider the index from 0..n-2 only
+        - we don't pick the prev_prev index => our case will results from index 1..n-1
         - formula: at any index i: max_profit[i] = max(0 if i-1 < 0 else max_profit[i-1], (0 if i-2 < 0 else max_profit[i-2]) + nums[i])
 
         ** STEPS **
@@ -39,25 +39,35 @@ class Solution:
                 - max_profit[i] = max(0 if i-1 < 0 else max_profit[i-1], (0 if i-2 < 0 else max_profit[i-2]) + nums[i])
             - ans = max(ans, max_profit[n-1])
         - return ans
+
+        Time: O(N)
+        Space: O(1)
         """
         # Edge case: the list has only one element
         if len(nums) == 1:
             return nums[0]
 
         n: int = len(nums)
-        max_profit: DefaultDict[int, int] = defaultdict(int)
+        prev_prev: int = 0
+        prev: int = 0
+        curr: int = 0
 
+        # i-2, i-1, i, i+1
         for i in range(n - 1):
-            max_profit[i] = max(max_profit[i - 1], max_profit[i - 2] + nums[i])
+            curr = max(prev, prev_prev + nums[i])
+            prev_prev = prev
+            prev = curr
 
         # print(f'max_profit = {max_profit}')
 
-        ans: int = max_profit[n - 2]
+        ans: int = curr
 
-        max_profit: DefaultDict[int, int] = defaultdict(int)
+        prev_prev = prev = curr = 0
         for i in range(1, n):
-            max_profit[i] = max(max_profit[i - 1], max_profit[i - 2] + nums[i])
+            curr = max(prev, prev_prev + nums[i])
+            prev_prev = prev
+            prev = curr
 
-        ans = max(ans, max_profit[n - 1])
+        ans = max(ans, curr)
 
         return ans
