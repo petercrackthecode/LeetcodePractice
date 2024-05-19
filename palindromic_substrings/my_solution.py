@@ -43,6 +43,10 @@ class Solution:
                 - otherwise, assign: is_palindrome_substr[(start, end)] = False
 
                 - if is_palindrome_substr[(start, end)] is True: increment ans by 1
+
+        *** ANALYSIS ***
+        Time: O(N)
+        Space: O(N)
         """
         ans: int = 0
         is_palindrome_substr: DefaultDict[Tuple[int, int], bool] = defaultdict(
