@@ -1,5 +1,5 @@
 # https://leetcode.com/problems/word-break/
-from typing import Dict, List
+from typing import List, Set
 
 
 class Solution:
