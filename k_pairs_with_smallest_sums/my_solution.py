@@ -50,5 +50,6 @@ class Solution:
             
             k -= 1
         # Q = min(k, N)
-        # O(Q) + O(QlogQ) + O(k * logQ) ~ O(klogQ)
+        # Time: O(Q) + O(QlogQ) + O(k * logQ) ~ O(klogQ)
+        # Space: O(Q)
         return ans
