@@ -21,25 +21,34 @@ class Solution:
                 - push (first_num + second_num, nums1_idx, nums2_idx+1) to the heap: ascending_num
             - decrement k by 1
         - return ans
+
+        N = len(nums1), M = len(nums2)
+
         '''
         ans:List[List[int]] = []
         # (sum, index_in_nums1, index_in_nums2)
         ascending_nums:List[Tuple[int]] = []
 
-        for i, first_num in enumerate(nums1):
+        # O(min(k, N))
+        for i in range(min(k, len(nums1))):
+            first_num:int = nums1[i]
             second_num:int = nums2[0]
             ascending_nums.append((first_num + second_num, i, 0))
+        # O(NlogN)
         heapify(ascending_nums)
 
+        # O(k)
         while k > 0:
+            # O(logQ)
             _, nums1_idx, nums2_idx = heappop(ascending_nums)
             ans.append([nums1[nums1_idx], nums2[nums2_idx]])
             if nums2_idx + 1 < len(nums2):
                 first_num:int = nums1[nums1_idx]
                 second_num:int = nums2[nums2_idx + 1]
+                # O(logQ)
                 heappush(ascending_nums, (first_num + second_num, nums1_idx, nums2_idx+1))
             
             k -= 1
-
-
+        # Q = min(k, N)
+        # O(Q) + O(QlogQ) + O(k * logQ) ~ O(klogQ)
         return ans
