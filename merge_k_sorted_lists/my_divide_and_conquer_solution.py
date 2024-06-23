@@ -1,6 +1,5 @@
 # https://leetcode.com/problems/merge-k-sorted-lists/
-from typing import Optional, List, Tuple
-from heapq import heapify, heappop, heappush
+from typing import Optional, List
 # Definition for singly-linked list.
 class ListNode:
     def __init__(self, val=0, next=None):
