@@ -1,5 +1,5 @@
 # https://leetcode.com/problems/top-k-frequent-elements/
-from typing import Set, List
+from typing import List
 from collections import defaultdict
 
 
