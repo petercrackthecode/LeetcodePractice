@@ -10,7 +10,7 @@ class TestBfs(unittest.TestCase):
                               /    \
                              11     2
                             / \    / \
-                          4    5  22 1
+                          4    5  22  1
                          / \
                         7   8
         """
